@@ -3,6 +3,7 @@ import werkzeug.security
 from werkzeug.security import check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
+from flask_pymongo import PyMongo
 
 app = Flask(__name__)
 app.config['STATIC_FOLDER'] = 'static'
@@ -10,16 +11,17 @@ app.config['STATIC_FOLDER'] = 'static'
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'any-secret-key-you-choose'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/mydatabase'
+mongo = PyMongo(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+
 
 ##CREATE TABLE IN DB
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
-    name = db.Column(db.String(1000))
+class User(db.Document):
+    username = db.StringField(required=True)
+    email = db.StringField(required=True)
+    password = db.StringField(required=True)
+
 #Line below only required once, when creating DB. 
 
 
